@@ -160,6 +160,7 @@
 		arguments.url = $createAttachmentPath(argumentCollection=arguments);
 		arguments.storage = ListToArray(ReplaceList(arguments.storage, "filesystem,s3", "FileSystem,S3"));
 		arguments.fileSize = arguments.fileSize;
+		arguments.imageTagUrl = $createAttachmentPath(argumentCollection=arguments);
 		
 		for (loc.storageType in arguments.storage)
 		{
