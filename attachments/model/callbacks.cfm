@@ -234,6 +234,7 @@
 		
 		arguments.path = ReplaceNoCase(arguments.path, ":filename", arguments.fileName, "one");
 		arguments.path = ReplaceNoCase(arguments.path, ":model", variables.wheels.class.modelName, "one");
+		arguments.path = ReplaceNoCase(arguments.path, ":controller", pluralize(variables.wheels.class.modelName), "one");
 		arguments.path = ReplaceNoCase(arguments.path, ":property", arguments.property, "one");
 	</cfscript>
 	<cfreturn arguments.path />
