@@ -75,7 +75,7 @@
 	<cfscript>
 		var loc = {};
 		loc.style = arguments.styles[arguments.style];
-		loc.image = ImageRead(ExpandPath(this.file.url));
+		loc.image = ImageRead(ExpandPath(this[arguments.property].url));
 		loc.largerDimension = loc.image.height > loc.image.width ? "height" : "width";
 		loc.smallerDimension = loc.largerDimension == "width" ? "height" : "width";
 		loc.resizeArgs = {
