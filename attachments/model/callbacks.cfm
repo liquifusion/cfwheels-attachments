@@ -13,10 +13,19 @@
 			// loop over our attachements and upload each one
 			for (loc.attachment in variables.wheels.class.attachments)
 			{
-				loc.saved = $saveAttachment(property=loc.attachment);
 				
-				if (loc.success)
-					loc.success = loc.saved;
+				// only try to upload if a file is uploading
+				if (form[this[loc.attachment & "$attachment"]] neq "")
+				{
+					loc.saved = $saveAttachment(property=loc.attachment);
+				
+					if (loc.success)
+						loc.success = loc.saved;
+				}
+				else
+				{
+					loc.success = false;
+				}			
 			}
 			
 			variables.wheels.instance.attachmentsSaved = true;
