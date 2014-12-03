@@ -87,6 +87,11 @@
 		if (StructKeyExists(this, loc.attachment.property & "$attachment") && StructKeyExists(form, this[loc.attachment.property & "$attachment"]) && Len(form[this[loc.attachment.property & "$attachment"]]))
 		{
 			loc.file = $saveFileToTempDirectory(argumentCollection=arguments);
+
+			if (IsBoolean(loc.file)) {
+				return loc.file;
+			}
+
 			loc.filePath = Replace(GetTempDirectory() & loc.file.ServerFile, "\", "/", "all");
 			
 			// check to make sure we don't have a bad file
@@ -165,7 +170,7 @@
 	</cfscript>
 </cffunction>
 
-<cffunction name="$saveFileToTempDirectory" access="public" output="false" returntype="struct">
+<cffunction name="$saveFileToTempDirectory" access="public" output="false">
 	<cfargument name="property" type="string" required="true" />
 	<cfscript>
 		// Set the file in a temp location to verify it's not evil
