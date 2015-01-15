@@ -10,6 +10,7 @@
 	<cfargument name="storage" type="string" required="false" default="filesystem" hint="Other options include `s3` and `filesystem,s3`." />
 	<cfargument name="blockExtensions" type="string" required="false" default="cfm,cfml,cfc,dbm,jsp,asp,aspx,exe,php,cgi,shtml" hint="List of file extensions to not allow. This is the default behavior unless overridden by `allowExtensions`. If `allowExtensions` is set, this argument is then ignored." />
 	<cfargument name="allowExtensions" type="string" required="false" default="" hint="List of file extensions to allow. If this is set, the `blockExtensions` argument is ignored." />
+	<cfargument name="renaming" type="string" required="false" default="" hint="Option to rename the file on Fly. The syntaxe is `renaming=uuid`." />
 	<cfscript>
 		var loc = {};
 		

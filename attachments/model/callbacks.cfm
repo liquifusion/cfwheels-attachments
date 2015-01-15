@@ -13,10 +13,19 @@
 			// loop over our attachements and upload each one
 			for (loc.attachment in variables.wheels.class.attachments)
 			{
-				loc.saved = $saveAttachment(property=loc.attachment);
 				
-				if (loc.success)
-					loc.success = loc.saved;
+				// only try to upload if a file is uploading
+				if (form[this[loc.attachment & "$attachment"]] neq "")
+				{
+					loc.saved = $saveAttachment(property=loc.attachment);
+				
+					if (loc.success)
+						loc.success = loc.saved;
+				}
+				else
+				{
+					loc.success = false;
+				}			
 			}
 			
 			variables.$attachmentsSaved = true;
@@ -210,14 +219,25 @@
 	<cfargument name="path" type="string" required="true" />
 	<cfargument name="storage" type="string" required="true" />
 	<cfargument name="fileSize" type="numeric" required="true" />
+	<cfargument name="renaming" type="string" required="true" />
 	<cfscript>
 		var loc = {};
 		
-		arguments.fileName = ListLast(arguments.source, "/");
+		if (arguments.renaming neq "") {
+			arguments.fileExt = listLast(arguments.source,".");
+			switch(arguments.renaming) {
+				case "uuid": {
+					arguments.fileName = createUUID() & "." & arguments.fileExt;	
+				}
+			}
+		} else {
+			arguments.fileName = ListLast(arguments.source, "/");
+		}
 		arguments.path = $createAttachmentPath(argumentCollection=arguments);
 		arguments.url = $createAttachmentPath(argumentCollection=arguments);
 		arguments.storage = ListToArray(ReplaceList(arguments.storage, "filesystem,s3", "FileSystem,S3"));
 		arguments.fileSize = arguments.fileSize;
+		arguments.imageTagUrl = $createAttachmentPath(argumentCollection=arguments);
 		
 		for (loc.storageType in arguments.storage)
 		{
@@ -249,6 +269,8 @@
 	<cfargument name="style" type="string" required="true" hint="Style name." />
 	<cfscript>
 		var loc = {};
+		
+		// si un argument reanaming est passé il faut forcer le renomage. Sinon on laisse le nom d'origine.
 		
 		arguments.fileName = ListLast(arguments.image.source, "/\");
 		arguments.path = $createAttachmentPath(argumentCollection=arguments);
@@ -296,6 +318,7 @@
 		
 		arguments.path = ReplaceNoCase(arguments.path, ":filename", arguments.fileName, "one");
 		arguments.path = ReplaceNoCase(arguments.path, ":model", variables.wheels.class.modelName, "one");
+		arguments.path = ReplaceNoCase(arguments.path, ":controller", pluralize(variables.wheels.class.modelName), "one");
 		arguments.path = ReplaceNoCase(arguments.path, ":property", arguments.property, "one");
 	</cfscript>
 	<cfreturn arguments.path />
