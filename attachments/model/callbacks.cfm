@@ -326,7 +326,7 @@
 		if (IsSimpleValue(this[arguments.property]) && IsJson(this[arguments.property]))
 			this[arguments.property] = DeserializeJson(this[arguments.property]);
 
-		if (StructKeyExists(this[arguments.property], "path")) {
+		if (IsStruct(this[arguments.property]) && StructKeyExists(this[arguments.property], "path")) {
 			loc.filePath = Replace(this[arguments.property].path, "\", "/", "all");
 		
 			this[arguments.attachmentConfig.property] = $deleteFileFromStorage(source=loc.filePath, argumentCollection=arguments.attachmentConfig);
