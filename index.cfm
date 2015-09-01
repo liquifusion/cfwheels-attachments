@@ -1,7 +1,7 @@
 <cfsetting enablecfoutputonly="true" />
 
 <cfset attachments = {}>
-<cfset attachments.version = "0.7">
+<cfset attachments.version = "0.2">
 
 <cfinclude template="stylesheets/doc_styles.cfm" />
 
@@ -10,7 +10,8 @@
 <h1>Attachments v#attachments.version#</h1>
 
 <p>
-	Add support for file uploads to your model with the <tt>hasAttachment()</tt> function. Also provides <tt>attachmentImageTag()</tt> and <tt>attachmentLinkTo()</tt> view helpers.
+	Add support for file uploads to your model with the <tt>hasAttachment()</tt> function. Also provides
+	<tt>attachmentImageTag()</tt> and <tt>attachmentLinkTo()</tt> view helpers.
 </p>
 <p>
 	Automatically resize uploaded images to a set of &quot;styles&quot; that you define. (For example, you could automatically

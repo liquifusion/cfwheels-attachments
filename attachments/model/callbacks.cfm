@@ -1,91 +1,84 @@
-<cffunction name="$saveAttachments" access="public" output="false" returntype="boolean">
+<cffunction name="$saveAttachments" returntype="boolean" output="false">
 	<cfscript>
 		var loc = { success = true };
 
-		if (!FindNoCase("multipart", cgi.content_type))
+		if (!FindNoCase("multipart", cgi.CONTENT_TYPE)) {
 			return false;
+		}
 			
-		if (!StructKeyExists(variables, "$attachmentsSaved"))
-		{
-			if (!StructKeyExists(variables, "$persistedProperties") || !StructKeyExists(variables.$persistedProperties, ListFirst(primaryKey())))
+		if (!StructKeyExists(variables, "$attachmentsSaved")) {
+			if (!StructKeyExists(variables, "$persistedProperties") || !StructKeyExists(variables.$persistedProperties, ListFirst(primaryKey()))) {
 				$updatePersistedProperties();
+			}
 
 			// loop over our attachements and upload each one
-			for (loc.attachment in variables.wheels.class.attachments)
-			{
+			for (loc.attachment in variables.wheels.class.attachments) {
 				loc.saved = $saveAttachment(property=loc.attachment);
 				
-				if (loc.success)
+				if (loc.success) {
 					loc.success = loc.saved;
+				}
 			}
 			
 			variables.$attachmentsSaved = true;
-			
-			if (loc.success)
-			{
+
+			if (loc.success) {
+				$serializeJSONProperties();
 				this.save();
 				this.reload();
 			}
 		}
 	</cfscript>
-	<cfreturn loc.success />
+	<cfreturn loc.success>
 </cffunction>
 
-<cffunction name="$updateAttachments" access="public" output="false" returntype="boolean">
+<cffunction name="$updateAttachments" returntype="boolean" output="false">
 	<cfscript>
 		var loc = { success = true };
 
-		if (!FindNoCase("multipart", cgi.content_type))
+		if (!FindNoCase("multipart", cgi.CONTENT_TYPE)) {
 			return false;
-			
-		if (!StructKeyExists(variables, "$attachmentsSaved"))
-		{
-			if (!StructKeyExists(variables, "$persistedProperties") || !StructKeyExists(variables.$persistedProperties, ListFirst(primaryKey())))
+		}
+
+		if (!StructKeyExists(variables, "$attachmentsSaved")) {
+			if (!StructKeyExists(variables, "$persistedProperties") || !StructKeyExists(variables.$persistedProperties, ListFirst(primaryKey()))) {
 				$updatePersistedProperties();
+			}
 
 			// loop over our attachements and upload each one
-			for (loc.attachment in variables.wheels.class.attachments)
-			{
-				if (StructKeyExists(this, loc.attachment & "$attachment") && Len(form[this[loc.attachment & "$attachment"]]))
-				{
+			for (loc.attachment in variables.wheels.class.attachments) {
+				if (StructKeyExists(this, loc.attachment & "$attachment") && Len(form[this[loc.attachment & "$attachment"]])) {
 					loc.attempted = true;
 					this[loc.attachment & "_old"] = this.changedFrom(loc.attachment);
 					$deleteAttachment(loc.attachment & "_old", variables.wheels.class.attachments[loc.attachment]);
 					loc.saved = $saveAttachment(loc.attachment);
 				}
-				else
-				{
+				else {
 					loc.attempted = false;
 					this[loc.attachment] = this.changedFrom(loc.attachment);
 					loc.saved = false;
 				}
 				
-				if (loc.success)
+				if (loc.success) {
 					loc.success = !loc.attempted || loc.saved;
+				}
 			}
 			
 			variables.$attachmentsSaved = true;
-			
-			if (loc.saved)
-			{
-				this.save();
-				this.reload();
-			}
 		}
 	</cfscript>
-	<cfreturn loc.success />
+	<cfreturn loc.success>
 </cffunction>
 
-<cffunction name="$saveAttachment" access="public" output="false" returntype="boolean">
-	<cfargument name="property" type="string" required="true" />
+<cffunction name="$saveAttachment" returntype="boolean" output="false">
+	<cfargument name="property" type="string" required="true">
 	<cfscript>
 		var loc = {};
 		
 		loc.attachment = variables.wheels.class.attachments[arguments.property];
 		
 		// only try to upload something if we have the proper $attachment field
-		if (StructKeyExists(this, loc.attachment.property & "$attachment") && StructKeyExists(form, this[loc.attachment.property & "$attachment"]) && Len(form[this[loc.attachment.property & "$attachment"]]))
-		{
+		if (StructKeyExists(this, loc.attachment.property & "$attachment") && StructKeyExists(form, this[loc.attachment.property & "$attachment"]) && Len(form[this[loc.attachment.property & "$attachment"]])) {
 			loc.file = $saveFileToTempDirectory(argumentCollection=arguments);
 
 			if (IsBoolean(loc.file)) {
@@ -95,28 +88,27 @@
 			loc.filePath = Replace(GetTempDirectory() & loc.file.ServerFile, "\", "/", "all");
 			
 			// check to make sure we don't have a bad file
-			if ($validateAttachmentFileType(loc.file.ServerFileExt, loc.attachment.blockExtensions, loc.attachment.allowExtensions))
-			{
+			if ($validateAttachmentFileType(loc.file.ServerFileExt, loc.attachment.blockExtensions, loc.attachment.allowExtensions)) {
 				this[loc.attachment.property] = $saveFileToStorage(
-					  argumentCollection=loc.attachment
-					, source=loc.filePath
-					, fileSize=loc.file.FileSize);
-	
-				if (IsImageFile(loc.filePath) && StructCount(loc.attachment.styles))
-				{
-					for (loc.style in loc.attachment.styles)
+					argumentCollection=loc.attachment,
+					source=loc.filePath,
+					fileSize=loc.file.FileSize
+				);
+
+				if (IsImageFile(loc.filePath) && StructCount(loc.attachment.styles)) {
+					for (loc.style in loc.attachment.styles) {
 						this[loc.attachment.property].styles[loc.style] = $saveImageFileWithStyle(source=loc.filePath, argumentCollection=loc.attachment, style=loc.style);
+					}
 				}
 			}
-			else
-			{
-				$file(action="delete", file=loc.filePath);
+			else {
+				FileDelete(loc.filePath);
 				this.addError(property=arguments.property, message="File is not a valid type.");
 				return false;
 			}
 		}		
 	</cfscript>
-	<cfreturn true />
+	<cfreturn true>
 </cffunction>
 
 <cffunction name="$saveImageFileWithStyle" access="public" output="false" returntype="struct">
@@ -173,30 +165,17 @@
 <cffunction name="$saveFileToTempDirectory" access="public" output="false">
 	<cfargument name="property" type="string" required="true" />
 	<cfscript>
-		// Set the file in a temp location to verify it's not evil
-		var fileArgs = {
-			  action = "upload"
-			, fileField = this[arguments.property & "$attachment"]
-			, destination = GetTempDirectory()
-			, result = "returnValue"
-			, nameconflict = "overwrite"
-		};
-
-		try
-		{
-			return $file(argumentCollection=fileArgs);
+		try {
+			return FileUpload(GetTempDirectory(), this[arguments.property & "$attachment"], "", "overwrite");
 		}
-		catch (any e)
-		{
-			// This is only tested on CF9. If you get an error on Railo, see if there is an equivalent error to
-			//   catch in another `catch` block.
-			if (e.Detail contains "zero-length")
-			{
+		catch (any e) {
+			// This is only tested on CF9. If you get an error on Railo or Lucee, see if there is an equivalent error to
+			// catch in another `catch` block.
+			if (e.Detail contains "zero-length") {
 				this.addError(property=arguments.property, message="Can't upload an empty file");
 				return false;
 			}
-			else
-			{
+			else {
 				$throw(argumentCollection=e);
 			}
 		}

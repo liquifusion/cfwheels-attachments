@@ -8,7 +8,7 @@ Overrides `fileField()` to work better with `<cffile>` and [nested properties][2
 
 ## Dependencies
 
-You must also install the [JSON Properties plugin][3] for the Attachments plugin to work.
+You must also install the [JSON Properties plugin][3] (version 0.3+) for the Attachments plugin to work.
 
 ## Documentation
 
@@ -20,7 +20,7 @@ This plugin was created by [James Gibson][4] and [Chris Peters][5] with support 
 
 [1]: http://cfwheels.org/
 [2]: http://cfwheels.org/docs/chapter/nested-properties
-[3]: https://github.com/liferealized/cfwheels-json-properties
+[3]: https://github.com/liquifusion/cfwheels-json-properties
 [4]: http://iamjamesgibson.com/
-[5]: http://www.clearcrystalmedia.com/
+[5]: http://www.chrisdpeters.com/
 [6]: http://liquifusion.com/
