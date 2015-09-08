@@ -150,7 +150,13 @@
 				// Crop excess
 				loc.newWidth = loc.image.width < loc.style.width ? loc.image.width : loc.style.width;
 				loc.newHeight = loc.image.height < loc.style.height ? loc.image.height : loc.style.height;
-				ImageCrop(loc.image, 0, 0, loc.newWidth, loc.newHeight);
+				
+				// Calculated x, y coordinates to crop by center of the image
+				loc.x = (loc.image.width / 2) - (loc.newWidth/2);
+				loc.y = (loc.image.height / 2) - (loc.newHeight/2);
+				
+				ImageCrop(loc.image, loc.x, loc.y, loc.newWidth, loc.newHeight);
+				
 			}
 		}
 		
